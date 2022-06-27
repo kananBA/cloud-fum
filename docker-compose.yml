@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  library_db:
+    image: postgres:14.3-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${LIBRARY_DATABASE_NAME}
+      POSTGRES_USER: ${LIBRARY_DATABASE_USER}
+      POSTGRES_PASSWORD: ${LIBRARY_DATABASE_PASSWORD}
+    volumes:
+      - library_db_data:/var/lib/postgresql/data/
+    ports:
+      - '5432:5432'
+
+  shop_db:
+    image: postgres:14.3-alpine
+    environment:
+      POSTGRES_DB: ${SHOP_DATABASE_NAME}
+      POSTGRES_USER: ${SHOP_DATABASE_USER}
+      POSTGRES_PASSWORD: ${SHOP_DATABASE_PASSWORD}
+    volumes:
+      - shop_db_data:/var/lib/postgresql/data/
+    ports:
+      - '5433:5432'
+
+  user_management_db:
+    image: postgres:14.3-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${USER_MANAGEMENT_DATABASE_NAME}
+      POSTGRES_USER: ${USER_MANAGEMENT_USER}
+      POSTGRES_PASSWORD: ${USER_MANAGEMENT_PASSWORD}
+    volumes:
+      - user_db_data:/var/lib/postgresql/data/
+    ports:
+      - '5434:5432'
+
+#TODO: Add links
+
+  library:
+      build: ./library
+      command: daphne library.asgi:application --bind 0.0.0.0 --port 8000
+      restart: always
+      ports:
+        - '8000:8000'
+      volumes:
+        - ./library/:/app/
+      depends_on:
+        - library_db
+      deploy:
+        resources:
+          limits:
+            cpus: 0.50
+            memory: 256M
+      env_file:
+        - ./library/env
+
+  shop:
+      build: ./shop
+      command: daphne shop.asgi:application --bind 0.0.0.0 --port 8001
+      ports:
+        - '8001:8001'
+      volumes:
+        - ./shop/:/app/
+      depends_on:
+        - shop_db
+      env_file:
+        - ./shop/env
+
+  user_management:
+    build: ./user_management
+    command: daphne user_management.asgi:application --bind 0.0.0.0 --port 8002
+    restart: always
+    ports:
+      - '8002:8002'
+    volumes:
+      - ./user_management/:/app/
+    depends_on:
+      - user_management_db
+    deploy:
+        resources:
+            limits:
+              cpus: 0.50
+              memory: 256M
+    env_file:
+      - ./user_management/env
+
+volumes:
+  library_db_data:
+  shop_db_data:
+  user_db_data:
