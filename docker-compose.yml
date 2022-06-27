@@ -15,6 +15,7 @@ services:
 
   shop_db:
     image: postgres:14.3-alpine
+    restart: always
     environment:
       POSTGRES_DB: ${SHOP_DATABASE_NAME}
       POSTGRES_USER: ${SHOP_DATABASE_USER}
@@ -59,12 +60,18 @@ services:
   shop:
       build: ./shop
       command: daphne shop.asgi:application --bind 0.0.0.0 --port 8001
+      restart: always
       ports:
         - '8001:8001'
       volumes:
         - ./shop/:/app/
       depends_on:
         - shop_db
+      deploy:
+        resources:
+          limits:
+            cpus: 0.50
+            memory: 256M
       env_file:
         - ./shop/env
 
