@@ -47,6 +47,8 @@ services:
         - '8000:8000'
       volumes:
         - ./library/:/app/
+        - library_static_volume:/app/static
+        - library_media_volume:/app/media
       depends_on:
         - library_db
       deploy:
@@ -65,6 +67,8 @@ services:
         - '8001:8001'
       volumes:
         - ./shop/:/app/
+        - shop_static_volume:/app/static
+        - shop_media_volume:/app/media
       depends_on:
         - shop_db
       deploy:
@@ -83,6 +87,8 @@ services:
       - '8002:8002'
     volumes:
       - ./user_management/:/app/
+      - user_management_static_volume:/app/static
+      - user_management_media_volume:/app/media
     depends_on:
       - user_management_db
     deploy:
@@ -95,5 +101,11 @@ services:
 
 volumes:
   library_db_data:
+  library_static_volume:
+  library_media_volume:
   shop_db_data:
+  shop_static_volume:
+  shop_media_volume:
   user_db_data:
+  user_management_static_volume:
+  user_management_media_volume:
