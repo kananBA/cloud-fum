@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-app
+  labels:
+    app: user
+spec:
+	replicas: 2
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - image: localhost:5000/user
+          name: user
+          envFrom:
+          - secretRef:
+              name: user-secret
+          - configMapRef:
+              name: user-config
+          ports:
+            - containerPort: 8002

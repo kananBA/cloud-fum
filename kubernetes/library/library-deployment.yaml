@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-app
+  labels:
+    app: library
+spec:
+	replicas: 1
+  selector:
+    matchLabels:
+      app: library
+  template:
+    metadata:
+      labels:
+        app: library
+    spec:
+      containers:
+        - image: localhost:5000/library
+          name: library
+          envFrom:
+          - secretRef:
+              name: library-secret
+          - configMapRef:
+              name: library-config
+          ports:
+            - containerPort: 8000
